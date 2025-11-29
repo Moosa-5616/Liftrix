@@ -44,7 +44,6 @@ class handler(BaseHTTPRequestHandler):
                     json={"name": name, "email": email}
                 )
                 self.respond(200, {"success": True})
-                self.respond(200, {"success": True})
 
         except Exception as e:
             self.respond(500, {"success": False, "message": str(e)})
@@ -62,4 +61,5 @@ class handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(json.dumps(payload).encode())
+
 
