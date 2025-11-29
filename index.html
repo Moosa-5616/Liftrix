@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liftrix - The Future of Lifestyle</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="card fade-in">
+            <header>
+                <h1>Liftrix</h1>
+                <p>Experience the next evolution of living. AI-driven lifestyle optimization, tailored just for you.</p>
+            </header>
+
+            <form id="subscribeForm">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    <span>Join the Waitlist</span>
+                    <div class="spinner hidden"></div>
+                </button>
+            </form>
+
+            <div id="message" class="message hidden"></div>
+        </div>
+
+        <footer>
+            <p>&copy; Liftrix — Built by Moosa Zargar</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
