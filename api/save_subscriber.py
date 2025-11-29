@@ -5,6 +5,7 @@ import requests
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+WEBHOOK_URL = os.getenv("GOOGLE_SHEETS_WEBHOOK")
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -17,46 +18,37 @@ class handler(BaseHTTPRequestHandler):
             email = data.get("email")
 
             if not name or not email:
-                self.respond(400, {"success": False, "message": "Missing name or email"})
-                return
+                return self.respond(400, {"success": False, "message": "Missing name or email"})
 
-            # DIRECT REST API CALL
+            # Insert into supabase
             resp = requests.post(
                 f"{SUPABASE_URL}/rest/v1/subscribers",
                 headers={
                     "apikey": SUPABASE_KEY,
                     "Authorization": f"Bearer {SUPABASE_KEY}",
                     "Content-Type": "application/json",
-                    "Prefer": "return=representation",
+                    "Prefer": "return=minimal"
                 },
-                json={
-                    "name": name,
-                    "email": email
-                }
+                json={"name": name, "email": email}
             )
 
             if resp.status_code >= 300:
-                self.respond(500, {"success": False, "message": resp.text})
-            else:
-                                # Send to Google Sheets webhook
-                                try:
-                    requests.post(
-                        os.getenv("GOOGLE_SHEETS_WEBHOOK"),
-                        json={"name": name, "email": email}
-                    )
-                                                    except Exception:
-                                                                            pass
-                self.respond(200, {"success": True})
+                return self.respond(500, {"success": False, "message": resp.text})
+
+            # Send to Google Sheets (SAFE WRAPPER)
+            try:
+                requests.post(
+                    WEBHOOK_URL,
+                    json={"name": name, "email": email}
+                )
+            except Exception as webhook_error:
+                # Log but DO NOT crash
+                print("Webhook error:", webhook_error)
+
+            return self.respond(200, {"success": True})
 
         except Exception as e:
-            self.respond(500, {"success": False, "message": str(e)})
-
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.end_headers()
+            return self.respond(500, {"success": False, "message": str(e)})
 
     def respond(self, status, payload):
         self.send_response(status)
@@ -65,5 +57,9 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(payload).encode())
 
-
-
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
