@@ -39,10 +39,13 @@ class handler(BaseHTTPRequestHandler):
                 self.respond(500, {"success": False, "message": resp.text})
             else:
                                 # Send to Google Sheets webhook
-                requests.post(
-                    os.getenv("GOOGLE_SHEETS_WEBHOOK"),
-                    json={"name": name, "email": email}
-                )
+                                try:
+                    requests.post(
+                        os.getenv("GOOGLE_SHEETS_WEBHOOK"),
+                        json={"name": name, "email": email}
+                    )
+                                                    except Exception:
+                                                                            pass
                 self.respond(200, {"success": True})
 
         except Exception as e:
@@ -61,5 +64,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(json.dumps(payload).encode())
+
 
 
